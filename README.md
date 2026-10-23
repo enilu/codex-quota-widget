@@ -1,61 +1,65 @@
-# Codex 额度悬浮窗
+# Codex Quota Widget
 
-一个轻量的 Codex 额度桌面小工具，把剩余额度、重置时间和重置卡到期提醒放在桌面上。本 fork 在原版 macOS 界面之外增加了 Windows 界面。
+**English** | [简体中文](README.zh-CN.md)
 
-macOS 使用 Swift / Cocoa 界面，Windows 使用 Qt / 原生 Acrylic 毛玻璃界面；额度读取使用 Python 标准库，不依赖 CodexBar。
+A lightweight desktop widget for Codex quota, reset times, and expiring reset credits. This fork adds a Windows interface alongside the original macOS app.
 
-> 个人社区项目，与 OpenAI 无隶属关系。额度接口及更新清单属于客户端内部契约，可能随上游版本变化。
+The macOS interface uses Swift / Cocoa; Windows uses Qt with native Acrylic glass. Quota requests use the Python standard library, with no CodexBar dependency.
 
-## Windows 快速启动
+> An independent community project, not affiliated with OpenAI. Quota endpoints and update feeds are internal client contracts and may change upstream.
 
-需要 Python 3.12+（包含 `pythonw.exe`，python.org 的 Windows 安装包默认提供）以及已登录的 Codex。首次启动前安装 Qt 界面依赖，无需 Swift 或编译。
+## Windows quick start
 
-在 PowerShell 进入项目目录后执行：
+You need Python **3.12+** with `pythonw.exe` (included in the standard python.org Windows installer) and a signed-in Codex account. Install the Qt dependency before the first launch. No Swift toolchain or compilation is required.
+
+Open PowerShell in the project directory and run:
 
 ```powershell
 python -m pip install -r requirements-windows.txt
 .\start-windows.ps1
 ```
 
-也可执行 `python windows_widget.py` 以便查看启动错误。窗口默认无标题栏、圆角、置顶，背景使用 Windows 原生 Acrylic 毛玻璃；拖动顶部空白区域移动窗口。右上角提供置顶、配色、最小化及退出按钮，F5 刷新，Ctrl+Q 退出。配色和位置在退出时保存，重复启动会避免创建第二个实例。不自动配置开机启动。原版 Tk 界面保留为 `python windows_widget.py --classic`。
+Run `python windows_widget.py` instead to see startup errors in the terminal.
 
-Windows 入口优先读取 `CODEX_HOME/auth.json`，未设置时读取 `%USERPROFILE%/.codex/auth.json`；只读取登录数据，不更改登录状态。也可用 `python windows_widget.py --home "登录目录"` 指定目录。每分钟在隐藏的子进程读取额度，读取等待超过 35 秒会终止子进程；失败时只回读当前账号的缓存。
+The window opens pinned, with rounded corners, a native Acrylic background, and no system title bar. Drag the empty area at the top to move it. The upper-right buttons control pinning, theme, minimization, and exit. Press F5 to refresh or Ctrl+Q to quit. Theme and position are saved on exit. A second launch avoids creating another instance. Startup at login is not configured automatically. The original Tk interface remains available with `python windows_widget.py --classic`.
 
-`windows.local.json` 存窗口偏好，`usage.local.json` 存额度快照，都已被 Git 忽略。Windows 版本暂不提供托盘菜单或 Codex 版本更新提示。本文后面的 Swift 构建、菜单栏及版本检测说明适用于 macOS；Windows 无需执行这些步骤。更多说明见 [Windows 适配说明](docs/WINDOWS.md)。
+The Windows launcher reads `CODEX_HOME/auth.json` when `CODEX_HOME` is set, otherwise `%USERPROFILE%/.codex/auth.json`. It only reads login data. To use another directory, run `python windows_widget.py --home "login-directory"`. A hidden subprocess refreshes quota every minute and is terminated after a 35-second timeout. Failed reads may fall back only to a cache verified for the current account.
 
-演示模式只使用虚构数据，不读取登录或额度缓存，也不联网：
+Window preferences are stored in `windows.local.json`; quota snapshots are stored in `usage.local.json`. Both are ignored by Git. Windows currently has no system tray menu or Codex update indicator. The Swift build, menu bar, and update detection instructions below apply to macOS. See [Windows notes](docs/WINDOWS.md) (in Chinese) for details.
+
+Demo mode uses synthetic data without reading login files or quota caches, or making network requests:
 
 ```powershell
 .\start-windows.ps1 -Demo
 ```
 
-![深灰配色示例](docs/images/graphite.png)
+![Graphite theme example](docs/images/graphite.png)
 
-*图片使用程序生成的虚构数据，不代表真实账号额度。*
+*The image uses program-generated fictional data, not real account quota.*
 
-## 功能
+## Features
 
-- 显示周期最长的 Codex 额度窗口，通常为周额度；显示剩余百分比、重置倒计时及 GMT+8 时间。
-- 根据剩余额度和距重置的天数，显示日均可用预算；这不是消耗速度或可用时长预测。
-- 显示可用重置卡数量和最早到期时间；不足 24 小时显示橙色，不足 3 小时显示红色。
-- 启动读取一次，之后每分钟刷新额度，每秒更新本地倒计时；支持手动刷新。
-- 每小时检查 Codex 稳定版更新，有更新时显示圆点。只提示，不下载或安装更新。
-- 支持拖动、置顶、隐藏、菜单栏恢复，以及深灰、雾灰、暖杏三套配色。
-- 读取失败时保留可验证为同一账号的历史缓存；过期数据有提示，不假定重置后额度已经恢复。
+- Shows the longest Codex quota window, usually weekly, with the remaining percentage, reset countdown, and reset time in GMT+8.
+- Calculates a daily quota budget from the remaining percentage and time until reset. This is not a consumption-rate or runtime prediction.
+- Shows available reset credits and the earliest expiration. macOS uses orange below 24 hours and red below 3 hours; Windows currently uses orange below 24 hours.
+- Reads on startup, refreshes quota every minute, and updates the local countdown automatically. Manual refresh is supported.
+- On macOS, checks for stable Codex updates hourly and displays a dot when one is available. It does not download or install updates.
+- Supports dragging, pinning, and three themes: graphite, fog, and apricot. macOS restores hidden windows from the menu bar; Windows restores minimized windows from the taskbar.
+- Preserves historical data after a failed read only when the cache can be verified for the same account. Marks stale data and never assumes a reset restored quota.
 
-## macOS 使用前准备
+## macOS prerequisites
 
-1. 一台 Mac，以及 Xcode Command Line Tools（提供 `swiftc`）。如果尚未安装，在终端执行 `xcode-select --install`，按系统提示完成安装。
-2. Python **3.12+**，且该解释器能加载受信任的 HTTPS CA 证书；已验证版本及平台见下方支持说明。
-3. 已安装并登录 Codex 桌面应用，登录数据可从默认位置 `~/.codex/auth.json` 读取。
+1. A Mac with Xcode Command Line Tools, which provide `swiftc`. If needed, run `xcode-select --install` and follow the system prompts.
+2. Python **3.12+** with working trusted HTTPS CA certificates. See the compatibility notes below.
+3. The Codex desktop app installed and signed in, with readable login data at `~/.codex/auth.json`.
 
-macOS 入口不支持仅有 API Key、凭据仅存在钥匙串、自定义 `CODEX_HOME` 或第三方多账号管理器。应用检测目前扫描 `/Applications/Codex.app` 和 `/Applications/ChatGPT.app` 中的 Codex 稳定版安装。Linux 桌面未适配。
+The macOS launcher does not support API-key-only authentication, credentials stored only in Keychain, a custom `CODEX_HOME`, or third-party account managers. Installation detection scans `/Applications/Codex.app` and `/Applications/ChatGPT.app` for stable Codex installations. Linux desktop support has not been added.
 
-本地已验证 macOS 26.7.1 / Intel x86_64 / Python 3.12.14 构建；Python 3.13.2 仅完成离线 Python 测试。Apple Silicon、其他 macOS 和所有账号套餐尚未逐项验证，没有承诺最低 macOS 版本或后续 Python 版本兼容。
+The original macOS build was locally verified on macOS 26.7.1 / Intel x86_64 / Python 3.12.14. Python 3.13.2 passed offline Python tests only. Apple Silicon, other macOS versions, and all account plans have not been individually verified. There is no guaranteed minimum macOS version or compatibility promise for future Python releases.
 
-## 构建与启动
+## Build and launch on macOS
 
-下载源码并解压，在终端进入 `codex-quota-widget` 目录，然后执行：
+Download and extract the source, open a terminal in `codex-quota-widget`, then run:
 
 ```sh
 python3 --version
@@ -64,44 +68,54 @@ python3 build.py
 open .build/Codex额度悬浮窗.app
 ```
 
-构建脚本使用运行它的 Python 解释器。若 `python3` 版本过旧，可改用已安装的 `python3.12` 或更新版本执行所有 Python 命令。构建时不查询账号或联网下载依赖，`open` 启动应用后才开始读取数据。
+The build script uses the Python interpreter running it. If `python3` is too old, use an installed `python3.12` or newer for all Python commands. Building does not query your account or download dependencies. Data reads begin after the app is launched.
 
-构建包位于 `.build/Codex额度悬浮窗.app`。也可在 Finder 按 `Command + Shift + G`，输入源码目录中的 `.build` 路径，再双击应用。
+The app bundle is created at `.build/Codex额度悬浮窗.app`. You can also press Command+Shift+G in Finder, enter the source directory's `.build` path, and open the app.
 
-**请保持源码目录及 Python 环境的位置不变。** 当前构建会绑定本机解释器和源码目录中的缓存路径；移动源码、删除 Python 环境后需要重新构建。生成的 `.app` 不是适合直接发给其他人的通用安装包，也尚未做开发者签名和公证。首次运行遇到系统拦截时请遵循 macOS 的安全提示，不需要全局关闭安全保护。
+**Keep the source directory and Python environment in place.** The build binds to the local interpreter and cache paths in the source directory. Rebuild after moving the source or deleting the Python environment. The generated `.app` is not a portable installer and has not been developer-signed or notarized. Follow normal macOS security prompts on first launch; do not disable system security globally.
 
-启动后可通过窗口按钮操作，或点击菜单栏的额度仪表图标恢复隐藏窗口、刷新、切换配色。隐藏不影响后台刷新；从菜单或窗口点击退出会停止定时器并回收读取进程。项目不会自动安装登录启动项。
+Use the window buttons or the quota gauge icon in the menu bar to restore the window, refresh data, or switch themes. Hiding the window does not stop background refreshes. Quitting stops timers and reaps reader subprocesses. The project does not automatically install a login item.
 
-## 当前局限性
+## Current limitations
 
-- 只展示周期最长的一个额度窗口；周额度充足不代表短窗口仍可使用，不统计本地 token、API 余额或账单。
-- 提醒为窗口内的颜色变化，没有系统通知、声音或后台推送。
-- 日期固定为 GMT+8，界面为中文，暂不支持时区/语言设置。
-- 配色和窗口位置会保存；隐藏与置顶状态不跨启动保存，启动默认显示并置顶。
-- 不支持多账号管理、自动使用卡片、自动更新 Codex，也没有多实例协调。
-- 接口、登录存储、安装位置和上游清单结构变化可能使部分功能不可用；未完成长期驻留、睡眠恢复和全平台验证。
+- Only the longest quota window is shown. A healthy weekly balance does not mean a shorter window is available. Local token usage, API balances, and billing are not tracked.
+- Alerts are color changes inside the window, without system notifications, sound, or push messages.
+- Dates use GMT+8 and the application UI is in Chinese. Language and time zone settings are not available.
+- Theme and position are saved. Hidden and pinned states are not restored across launches; the app opens visible and pinned.
+- No account management, automatic credit redemption, or automatic Codex updates. Windows has a single-instance guard; macOS has no instance coordination.
+- Changes to endpoints, credential storage, installation paths, or update feed formats may break features. Long-running use, sleep recovery, and all platform combinations have not been fully verified.
 
-完整行为、异常处理、环境验证与未支持事项见 [支持范围与已知限制](docs/SUPPORT.md)。
+See [support and known limitations](docs/SUPPORT.md) (in Chinese) for detailed behavior, error handling, and environment coverage.
 
-## 更新与卸载
+## Updating and uninstalling
 
-更新源码前先退出旧应用，在原目录更新源码并重新构建，再启动新应用；不要同时运行多个副本。只更新源码不会自动替换应用包内的 Python 文件。
+Quit the running app before updating the source. On macOS, rebuild in the same directory and launch the new app; updating source files does not replace the Python files inside an existing app bundle. On Windows, install any changed requirements and restart the launcher. Avoid running multiple copies.
 
-卸载时先从菜单或窗口退出，再删除本工具的 `.app`、源码目录及其中的两个缓存即可。配色/窗口偏好存于 macOS 用户偏好中，可按需单独清除；不要删除 Codex 的 `~/.codex` 登录目录。若曾自行设置登录启动，请同时在系统设置中移除对应启动项。
+To uninstall, quit first, then remove the widget's app bundle, source directory, and local caches. macOS theme and position preferences are stored in the user's application preferences; Windows uses `windows.local.json`. Do not delete the Codex `~/.codex` login directory. If you manually configured startup at login, remove that entry as well.
 
-## 数据与隐私
+## Data and privacy
 
-完整说明见 [PRIVACY.md](PRIVACY.md)。主要行为：
+See [PRIVACY.md](PRIVACY.md) (in Chinese) for the full policy. Key behaviors:
 
-- 仅使用本机 Codex 登录数据，读取额度和重置卡；不兑换卡片，不刷新或改写登录文件，不读取浏览器 Cookie。
-- 额度请求仅向 `chatgpt.com` 的两个固定 HTTPS GET 接口发送 access token 和账号范围，并拒绝重定向。
-- 版本检查使用官方更新源，可能发送已有的安装实例标识、系统/应用版本、架构及套餐类型；不携带登录 token 或 Cookie。
-- 缓存只存额度、时间、状态和账号摘要等必要信息。摘要仍属于账号关联信息，不应公开。
-- 不向项目作者发送遥测或使用数据。
+- Reads local Codex login data to fetch quota and reset credits. Does not redeem credits, refresh or modify login files, or read browser cookies.
+- Sends the access token and account scope only to two fixed HTTPS GET endpoints on `chatgpt.com`. Redirects are rejected.
+- On macOS, update checks use official feeds and may send an existing installation identifier, system/app versions, architecture, and plan type. They do not include login tokens or cookies.
+- Caches contain only necessary quota, time, status, and account-hash fields. Account hashes are still account-related information and should not be published.
+- Sends no telemetry or usage data to the project author.
 
-`usage.local.json`、`version.local.json` 和 `.build/` 都是本地文件，已加入 Git 忽略规则。请不要上传整个工作目录或真实账号截图。
+`usage.local.json`, `version.local.json`, `windows.local.json`, and `.build/` are local artifacts ignored by Git. Do not upload your entire working directory or screenshots of real account data.
 
-## 开发与验证
+## Development and validation
+
+Windows:
+
+```powershell
+python -m pip install -r requirements-windows.txt
+python -m unittest discover -s tests -v
+python scripts/package_source.py --check
+```
+
+macOS:
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -110,43 +124,43 @@ python3 build.py
 .build/Codex额度悬浮窗.app/Contents/MacOS/CodexQuotaWidget --check-reader "$(command -v python3)"
 ```
 
-Python 用例使用模拟响应和临时文件；两种 Swift 检查模式仅执行计算或可丢弃子进程，不访问真实账号或接口。GitHub Actions 已配置相同的离线检查与 macOS 编译，首次上传后可查看运行结果。
+Python tests use mocked responses and temporary files. Swift check modes perform calculations or launch disposable subprocesses without accessing real accounts or endpoints. GitHub Actions runs Windows checks and macOS compilation with offline regression tests. Qt-specific tests are skipped when the optional Windows UI dependency is not installed.
 
-项目结构、构建选项、CLI 语义和手工验证见 [开发说明](docs/DEVELOPMENT.md)。
+See [development notes](docs/DEVELOPMENT.md) (in Chinese) for project structure, build options, CLI behavior, and manual checks.
 
-生成不读取账号、缓存或网络的文档预览：
+To generate a macOS documentation preview without reading accounts, caches, or the network:
 
 ```sh
 .build/Codex额度悬浮窗.app/Contents/MacOS/CodexQuotaWidget \
   --preview .build/demo.png --demo --theme graphite
 ```
 
-配色参数还支持 `fog` / `apricot`。只有 `--preview` 与 `--demo` 同时使用才会生成虚构数据；不带 `--demo` 的预览会回读本机缓存，请勿用于公开截图。
+The theme can also be `fog` or `apricot`. Both `--preview` and `--demo` are required for synthetic data. Previews without `--demo` read the local cache and must not be used for public screenshots.
 
-## 常见问题
+## FAQ
 
-**构建提示没有受信任 CA？** 这是当前 Python 的证书配置问题。若使用 python.org 的 macOS 安装包，可检查其应用程序目录中的 `Install Certificates.command`。修复后使用同一解释器重新构建，不要关闭 HTTPS 校验。
+**The build reports no trusted CA certificates.** Check the Python certificate configuration. With the python.org macOS installer, look for `Install Certificates.command` in its application directory. Fix certificates and rebuild with the same interpreter; do not disable HTTPS verification.
 
-**显示登录失效或暂不可用？** 先确认 Codex 本身可正常使用，再点击刷新。若仍失败，接口结构或登录存储方式可能已经变化。提交问题时只提供已脱敏的错误提示、系统和 Python 版本，切勿附带登录文件。
+**The widget reports expired login or unavailable data.** Confirm Codex itself works, then refresh. Credential storage or endpoint formats may have changed. When reporting an issue, share only sanitized errors and your OS/Python versions, never login files.
 
-**“状态未知”是否意味着没有卡？** 不是。字段缺失、未知状态或网络失败时会显示未知；只有成功读取并确认没有未到期可用卡片时才显示无卡。
+**Does “unknown” mean there are no reset credits?** No. Missing fields, unrecognized statuses, or network failures are shown as unknown. “No available credits” is shown only after a successful read confirms none remain unexpired and available.
 
-**是否支持 beta 更新、自动升级或多账号切换？** 目前只提示稳定版更新，不执行升级。每次读取默认 Codex 登录位置；切换账号后需等待下一次刷新或手动刷新，不支持管理多份账号配置。
+**Are beta updates, automatic upgrades, or account switching supported?** macOS only reports stable updates and does not install them; Windows currently has no update indicator. After switching accounts in Codex, wait for the next refresh or refresh manually. The widget does not manage multiple account profiles.
 
-## 上传 GitHub
+## Source distribution
 
-首次上传请使用 [GitHub 上传指南](docs/GITHUB_UPLOAD.md) 和 [公开文件清单](PUBLIC_FILES.txt)。运行以下命令可生成只含公开文件的源码包：
+See the [GitHub upload guide](docs/GITHUB_UPLOAD.md) (in Chinese) and [public file list](PUBLIC_FILES.txt). To create an archive containing only public source files:
 
 ```sh
 python3 scripts/package_source.py
 ```
 
-请解压 `.build/codex-quota-widget-source.zip`，再把解压后的文件上传为仓库源码；不要直接上传 ZIP 或整个本地工作目录。此脚本只验证文件清单与路径，不是凭据扫描器。
+On Windows, use `python` instead of `python3`. Extract `.build/codex-quota-widget-source.zip` before uploading its contents as repository source. Do not upload the ZIP as a substitute for source files or publish the entire local working directory. The script validates the file list and paths; it is not a credential scanner.
 
-## 参与与许可证
+## Contributing and license
 
-欢迎提交问题和改进，见 [贡献指南](CONTRIBUTING.md)；安全问题见 [SECURITY.md](SECURITY.md)。
+Issues and improvements are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md); report security issues as described in [SECURITY.md](SECURITY.md). Both documents are in Chinese.
 
-当前仍为首次公开发布前的源码准备状态，尚未发布正式 GitHub Release。更新记录见 [CHANGELOG.md](CHANGELOG.md)，维护者发布前请按 [发布检查](docs/RELEASING.md) 核对。
+The project is still in source-release preparation and has no formal GitHub Release. See [CHANGELOG.md](CHANGELOG.md) for changes and the [release checklist](docs/RELEASING.md) before publishing.
 
-本项目采用 [MIT 许可证](LICENSE)，允许使用、修改、分发和商用，需保留版权和许可声明。许可证仅覆盖本项目代码，不授予第三方产品商标或服务访问权限。
+Licensed under the [MIT License](LICENSE), allowing use, modification, distribution, and commercial use with the copyright and license notice preserved. The license covers this project's code only; it grants no third-party trademark rights or service access.
