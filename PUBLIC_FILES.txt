@@ -35,3 +35,6 @@ docs/DEVELOPMENT.md
 docs/WINDOWS.md
 docs/RELEASING.md
 docs/images/graphite.png
+docs/images/windows-fog.png
+docs/images/windows-graphite.png
+docs/images/windows-apricot.png

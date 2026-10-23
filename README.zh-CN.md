@@ -31,9 +31,11 @@ Windows 入口优先读取 `CODEX_HOME/auth.json`，未设置时读取 `%USERPRO
 .\start-windows.ps1 -Demo
 ```
 
-![深灰配色示例](docs/images/graphite.png)
+### Windows 界面截图
 
-*图片使用程序生成的虚构数据，不代表真实账号额度。*
+| 雾灰 | 深灰 | 暖杏 |
+| --- | --- | --- |
+| <img src="docs/images/windows-fog.png" alt="雾灰配色的 Windows 毛玻璃悬浮窗" width="240"> | <img src="docs/images/windows-graphite.png" alt="深灰配色的 Windows 毛玻璃悬浮窗" width="240"> | <img src="docs/images/windows-apricot.png" alt="暖杏配色的 Windows 毛玻璃悬浮窗" width="240"> |
 
 ## 功能
 

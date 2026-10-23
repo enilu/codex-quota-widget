@@ -33,9 +33,11 @@ Demo mode uses synthetic data without reading login files or quota caches, or ma
 .\start-windows.ps1 -Demo
 ```
 
-![Graphite theme example](docs/images/graphite.png)
+### Windows screenshots
 
-*The image uses program-generated fictional data, not real account quota.*
+| Fog | Graphite | Apricot |
+| --- | --- | --- |
+| <img src="docs/images/windows-fog.png" alt="Windows Acrylic widget in the fog theme" width="240"> | <img src="docs/images/windows-graphite.png" alt="Windows Acrylic widget in the graphite theme" width="240"> | <img src="docs/images/windows-apricot.png" alt="Windows Acrylic widget in the apricot theme" width="240"> |
 
 ## Features
 
