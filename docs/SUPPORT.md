@@ -1,6 +1,6 @@
 # 支持范围与已知限制
 
-本 fork 新增 Windows / Python 3.12 Tk 界面，启动与已验证范围见 [Windows 适配](WINDOWS.md)。已在 Windows 实机读取额度和重置卡；暂无托盘与 Codex 更新提示。以下原版兼容矩阵和原生界面细节适用于 macOS。
+本 fork 新增 Windows / Python 3.12 / Qt Acrylic 无标题栏界面，启动与已验证范围见 [Windows 适配](WINDOWS.md)。已在 Windows 实机读取额度和重置卡；暂无托盘与 Codex 更新提示。以下原版兼容矩阵和原生界面细节适用于 macOS。
 
 ## 环境兼容性
 

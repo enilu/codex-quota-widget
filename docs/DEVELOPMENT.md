@@ -1,6 +1,6 @@
 # 开发与项目结构
 
-Windows 入口为 `windows_widget.py` / `start-windows.ps1`，使用 Tk 与原版 Python 额度模块。Windows 开发、启动及差异见 [Windows 适配](WINDOWS.md)；下文 Cocoa 与 Swift 检查适用于 macOS。额度读取 CLI 新增可选 `--home` 参数显式传入登录目录。
+Windows 入口为 `windows_widget.py` / `start-windows.ps1`，默认使用 `windows_glass.py` 的 Qt / Acrylic 界面，保留 `--classic` Tk 入口，均复用原版 Python 额度模块。Qt 依赖见 `requirements-windows.txt`。Windows 开发、启动及差异见 [Windows 适配](WINDOWS.md)；下文 Cocoa 与 Swift 检查适用于 macOS。额度读取 CLI 新增可选 `--home` 参数显式传入登录目录。
 
 ## 目录与职责
 
@@ -15,7 +15,7 @@ tests/                  合成数据与临时文件/进程测试
 docs/                   支持矩阵、开发/发布/上传说明、虚构数据截图
 ```
 
-项目没有第三方 Python 依赖，不需要 `requirements.txt`；不是可供 pip 安装的 Python 包，也不是 Swift Package，因此不添加无实际用途的 `pyproject.toml` 或 `Package.swift`。
+macOS 入口没有第三方 Python 依赖；Windows 默认 Qt 界面需要 `requirements-windows.txt`，`--classic` 入口只用标准库。项目不是可供 pip 安装的 Python 包，也不是 Swift Package。
 
 ## 数据流
 

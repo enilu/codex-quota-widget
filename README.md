@@ -2,21 +2,22 @@
 
 一个轻量的 Codex 额度桌面小工具，把剩余额度、重置时间和重置卡到期提醒放在桌面上。本 fork 在原版 macOS 界面之外增加了 Windows 界面。
 
-使用 Swift / Cocoa 绘制界面，Python 标准库读取数据，无第三方运行依赖，也不依赖 CodexBar。
+macOS 使用 Swift / Cocoa 界面，Windows 使用 Qt / 原生 Acrylic 毛玻璃界面；额度读取使用 Python 标准库，不依赖 CodexBar。
 
 > 个人社区项目，与 OpenAI 无隶属关系。额度接口及更新清单属于客户端内部契约，可能随上游版本变化。
 
 ## Windows 快速启动
 
-需要 Python 3.12+（包含 Tk 和 `pythonw.exe`，python.org 的 Windows 安装包默认提供）以及已登录的 Codex。无需 Swift、编译或安装第三方依赖。
+需要 Python 3.12+（包含 `pythonw.exe`，python.org 的 Windows 安装包默认提供）以及已登录的 Codex。首次启动前安装 Qt 界面依赖，无需 Swift 或编译。
 
 在 PowerShell 进入项目目录后执行：
 
 ```powershell
+python -m pip install -r requirements-windows.txt
 .\start-windows.ps1
 ```
 
-也可执行 `python windows_widget.py` 以便查看启动错误。窗口默认置顶；支持标题栏拖动、刷新（F5）、三套配色、最小化到任务栏恢复，以及关闭退出（Ctrl+Q）。配色和位置在退出时保存，重复启动会避免创建第二个实例。不自动配置开机启动。
+也可执行 `python windows_widget.py` 以便查看启动错误。窗口默认无标题栏、圆角、置顶，背景使用 Windows 原生 Acrylic 毛玻璃；拖动顶部空白区域移动窗口。右上角提供置顶、配色、最小化及退出按钮，F5 刷新，Ctrl+Q 退出。配色和位置在退出时保存，重复启动会避免创建第二个实例。不自动配置开机启动。原版 Tk 界面保留为 `python windows_widget.py --classic`。
 
 Windows 入口优先读取 `CODEX_HOME/auth.json`，未设置时读取 `%USERPROFILE%/.codex/auth.json`；只读取登录数据，不更改登录状态。也可用 `python windows_widget.py --home "登录目录"` 指定目录。每分钟在隐藏的子进程读取额度，读取等待超过 35 秒会终止子进程；失败时只回读当前账号的缓存。
 

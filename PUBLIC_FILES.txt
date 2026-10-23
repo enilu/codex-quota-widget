@@ -17,11 +17,14 @@ QuotaWidget.swift
 build.py
 quota.py
 windows_widget.py
+windows_glass.py
+requirements-windows.txt
 start-windows.ps1
 updates.py
 scripts/package_source.py
 tests/test_quota.py
 tests/test_windows_widget.py
+tests/test_windows_glass.py
 tests/test_updates.py
 tests/test_review.py
 tests/test_package_source.py

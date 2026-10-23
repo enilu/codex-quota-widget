@@ -247,8 +247,13 @@ class Widget:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--demo", action="store_true", help="Show synthetic data without reading login/cache or network")
+    parser.add_argument("--classic", action="store_true", help="Use the legacy Tk interface")
     parser.add_argument("--home", type=Path, default=Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex"))
     args = parser.parse_args()
+    if not args.classic:
+        from windows_glass import run
+        run(args.home, args.demo)
+        return
     if os.name == "nt":
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
     root = tk.Tk()
