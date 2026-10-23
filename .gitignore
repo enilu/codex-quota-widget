@@ -1,0 +1,26 @@
+.build/
+*.local.json
+*.local.md
+__pycache__/
+*.py[cod]
+
+# Credentials, environment files and local tools
+auth.json
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.venv/
+venv/
+.runtime/
+.codex/
+.agents/
+.DS_Store
+*.log
+
+# Historical local reviews include machine-specific paths and usage snapshots.
+/docs/review-20261022.md
+/docs/review-20261023.md
+/docs/github-preparation.local.md
