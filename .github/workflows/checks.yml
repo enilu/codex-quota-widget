@@ -1,0 +1,31 @@
+name: Offline checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Python regression tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Check public file list
+        run: python3 scripts/package_source.py --check
+      - name: Build macOS application
+        run: python3 build.py
+      - name: Swift calculation and process checks
+        run: |
+          .build/Codex额度悬浮窗.app/Contents/MacOS/CodexQuotaWidget --check-guidance
+          .build/Codex额度悬浮窗.app/Contents/MacOS/CodexQuotaWidget --check-reader "$(command -v python3)"
