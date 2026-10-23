@@ -33,7 +33,12 @@ class PackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder).resolve()
             (root / "usage.local.json").write_text("private", encoding="utf-8")
-            (root / "README.md").symlink_to(root / "usage.local.json")
+            try:
+                (root / "README.md").symlink_to(root / "usage.local.json")
+            except OSError as exc:
+                if getattr(exc, "winerror", None) == 1314:
+                    self.skipTest("Windows account lacks symbolic-link privilege")
+                raise
             (root / "PUBLIC_FILES.txt").write_text("README.md", encoding="utf-8")
             with self.assertRaises(ValueError):
                 public_files(root)

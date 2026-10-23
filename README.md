@@ -1,10 +1,32 @@
 # Codex 额度悬浮窗
 
-一个轻量的 macOS 原生小工具，把 Codex 剩余额度、重置时间和重置卡到期提醒放在桌面上。
+一个轻量的 Codex 额度桌面小工具，把剩余额度、重置时间和重置卡到期提醒放在桌面上。本 fork 在原版 macOS 界面之外增加了 Windows 界面。
 
 使用 Swift / Cocoa 绘制界面，Python 标准库读取数据，无第三方运行依赖，也不依赖 CodexBar。
 
-> 个人社区项目，与 OpenAI 无隶属关系。当前提供源码构建；仅支持 macOS。额度接口及更新清单属于客户端内部契约，可能随上游版本变化。
+> 个人社区项目，与 OpenAI 无隶属关系。额度接口及更新清单属于客户端内部契约，可能随上游版本变化。
+
+## Windows 快速启动
+
+需要 Python 3.12+（包含 Tk 和 `pythonw.exe`，python.org 的 Windows 安装包默认提供）以及已登录的 Codex。无需 Swift、编译或安装第三方依赖。
+
+在 PowerShell 进入项目目录后执行：
+
+```powershell
+.\start-windows.ps1
+```
+
+也可执行 `python windows_widget.py` 以便查看启动错误。窗口默认置顶；支持标题栏拖动、刷新（F5）、三套配色、最小化到任务栏恢复，以及关闭退出（Ctrl+Q）。配色和位置在退出时保存，重复启动会避免创建第二个实例。不自动配置开机启动。
+
+Windows 入口优先读取 `CODEX_HOME/auth.json`，未设置时读取 `%USERPROFILE%/.codex/auth.json`；只读取登录数据，不更改登录状态。也可用 `python windows_widget.py --home "登录目录"` 指定目录。每分钟在隐藏的子进程读取额度，读取等待超过 35 秒会终止子进程；失败时只回读当前账号的缓存。
+
+`windows.local.json` 存窗口偏好，`usage.local.json` 存额度快照，都已被 Git 忽略。Windows 版本暂不提供托盘菜单或 Codex 版本更新提示。本文后面的 Swift 构建、菜单栏及版本检测说明适用于 macOS；Windows 无需执行这些步骤。更多说明见 [Windows 适配说明](docs/WINDOWS.md)。
+
+演示模式只使用虚构数据，不读取登录或额度缓存，也不联网：
+
+```powershell
+.\start-windows.ps1 -Demo
+```
 
 ![深灰配色示例](docs/images/graphite.png)
 
@@ -20,13 +42,13 @@
 - 支持拖动、置顶、隐藏、菜单栏恢复，以及深灰、雾灰、暖杏三套配色。
 - 读取失败时保留可验证为同一账号的历史缓存；过期数据有提示，不假定重置后额度已经恢复。
 
-## 使用前准备
+## macOS 使用前准备
 
 1. 一台 Mac，以及 Xcode Command Line Tools（提供 `swiftc`）。如果尚未安装，在终端执行 `xcode-select --install`，按系统提示完成安装。
 2. Python **3.12+**，且该解释器能加载受信任的 HTTPS CA 证书；已验证版本及平台见下方支持说明。
 3. 已安装并登录 Codex 桌面应用，登录数据可从默认位置 `~/.codex/auth.json` 读取。
 
-不支持 Windows / Linux。仅有 API Key、凭据仅存在钥匙串、使用自定义 `CODEX_HOME` 或第三方多账号管理器的环境，目前不在支持范围内。应用检测目前扫描 `/Applications/Codex.app` 和 `/Applications/ChatGPT.app` 中的 Codex 稳定版安装。
+macOS 入口不支持仅有 API Key、凭据仅存在钥匙串、自定义 `CODEX_HOME` 或第三方多账号管理器。应用检测目前扫描 `/Applications/Codex.app` 和 `/Applications/ChatGPT.app` 中的 Codex 稳定版安装。Linux 桌面未适配。
 
 本地已验证 macOS 26.7.1 / Intel x86_64 / Python 3.12.14 构建；Python 3.13.2 仅完成离线 Python 测试。Apple Silicon、其他 macOS 和所有账号套餐尚未逐项验证，没有承诺最低 macOS 版本或后续 Python 版本兼容。
 

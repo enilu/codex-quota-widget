@@ -1,5 +1,7 @@
 # 开发与项目结构
 
+Windows 入口为 `windows_widget.py` / `start-windows.ps1`，使用 Tk 与原版 Python 额度模块。Windows 开发、启动及差异见 [Windows 适配](WINDOWS.md)；下文 Cocoa 与 Swift 检查适用于 macOS。额度读取 CLI 新增可选 `--home` 参数显式传入登录目录。
+
 ## 目录与职责
 
 ```text

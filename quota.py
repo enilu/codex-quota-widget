@@ -197,12 +197,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("cache", type=Path)
     parser.add_argument("--refresh", action="store_true")
+    parser.add_argument("--home", type=Path, help="Codex login directory (read only)")
     args = parser.parse_args()
     try:
-        value = refresh(args.cache) if args.refresh else read_cache(args.cache)
+        value = refresh(args.cache, args.home) if args.refresh else read_cache(args.cache, args.home)
     except Exception as exc:
         try:
-            value = read_cache(args.cache)
+            value = read_cache(args.cache, args.home)
         except Exception:
             value = {}
         value["error"] = str(exc) if isinstance(exc, QuotaError) else "读取失败，请检查登录状态后重试"

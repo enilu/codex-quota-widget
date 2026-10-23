@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -96,7 +97,8 @@ class QuotaTests(unittest.TestCase):
                 self.assertEqual(result["creditExpiries"], [])
             serialized = cache.read_text(encoding="utf-8")
             self.assertNotIn("SECRET_", serialized)
-            self.assertEqual(cache.stat().st_mode & 0o777, 0o600)
+            if os.name != "nt":  # Windows file access uses ACLs, not POSIX mode bits.
+                self.assertEqual(cache.stat().st_mode & 0o777, 0o600)
             with patch("quota.get_json", side_effect=AssertionError("缓存不应联网")):
                 self.assertEqual(read_cache(cache, home)["remaining"], 59)
             previous = cache.read_bytes()
